@@ -2,6 +2,8 @@
 import java.util.List;
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 class Student{
    private  String name;
    private int rollno;
@@ -19,7 +21,7 @@ class Student{
       this.name=name;
     }
     public List<Integer>getMarks(){
-        ArrayList<Integer>newList=new ArrayList(marks);
+        ArrayList<Integer>newList=new ArrayList<>(marks);
         return newList;
     }
     public void setMarks(List<Integer>marks){
@@ -57,10 +59,28 @@ class Student{
       return (double)sum/marks.size();
     }
 }
+ class StudentNotFoundException extends Exception{
+           StudentNotFoundException(String message){
+           super(message);
+           }
+ }
+
+ class InvalidMarksException extends Exception{
+             InvalidMarksException(String message){
+             super(message);
+             }
+ }
+ class InvalidIndexException extends Exception{
+   InvalidIndexException(String message){
+     super(message);
+   }
+ }
+
+ 
   
 public class miniproject1{
 
-       static  Map<Integer,Student>students=new Hashmap<>();
+       static  Map<Integer,Student>students=new HashMap<>();
         static  Scanner sc= new Scanner(System.in);
 
    public static void main(String args[]){
@@ -76,16 +96,37 @@ public class miniproject1{
       int choice=sc.nextInt();
       sc.nextLine();
        if(choice==1){
-       addStudent();
+        try{
+           addStudent();
+        }
+        catch(InvalidMarksException e){
+        System.out.println(e.getMessage());
+        }
        }
        else if(choice==2){
         viewStudent();
        }
        else if(choice==3){
+        try{
        updateStudent();
        }
+       catch(StudentNotFoundException e){
+        System.out.println(e.getMessage());
+       }
+       catch(InvalidMarksException e){
+        System.out.println(e.getMessage());
+       }
+       catch(InvalidIndexException e){
+        System.out.println(e.getMessage());
+       }
+       }
        else if(choice==4){
-        deleteStudent();
+        try{
+           deleteStudent();
+        }
+        catch(StudentNotFoundException e){
+          System.out.println(e.getMessage());
+        }
        }
        else if(choice==5){
           searchStudentByPartialName();
@@ -101,15 +142,20 @@ public class miniproject1{
    }
      
      // add Student 
-      public  static void addStudent(){
+      public  static void addStudent() throws InvalidMarksException{
           System.out.println("Enter the name of the student");
           String name=sc.nextLine();
           List<Integer>marks=new ArrayList<>();
           System.out.println("Enter the marks of the student");
           for(int i=0;i<3;i++){
            int m=sc.nextInt();
-           marks.add(m);
+           if(m>=0 && m<=100){
+               marks.add(m);
+           }
+           else{
+          throw new InvalidMarksException("Invalid marks. Please enter values between 0 and 100.");
           }
+        }
           sc.nextLine();
           Student newStudent=new Student(name,marks);
           students.put(newStudent.getRollno(),newStudent);
@@ -134,7 +180,8 @@ public class miniproject1{
 
       }
     // update student 
-    public static  void updateStudent(){
+    public static  void updateStudent() throws StudentNotFoundException,InvalidMarksException,InvalidIndexException
+     {
      System.out.println("enter the Roll number of the student  to update");
        int rollNo=sc.nextInt();
        sc.nextLine();
@@ -164,7 +211,12 @@ public class miniproject1{
          for(int i=0;i<size;i++){
          System.out.println("enter the marks of subject "+(i+1));
          int m=sc.nextInt();
-         newMarks.add(m);
+         if(m>=0 && m<=100){
+               newMarks.add(m);
+         }
+         else{
+           throw new InvalidMarksException("Invalid marks ,Marks should be from 0 to 100");
+         }
          }
          sc.nextLine();
          found.setMarks(newMarks);
@@ -181,11 +233,13 @@ public class miniproject1{
           int index=sc.nextInt();
             sc.nextLine();
           if(index<1 || index>size){
-          System.out.println("INVALID SUBJECT NUMBER !!!");
-          return;
+          throw new InvalidIndexException("INVALID SUBJECT NUMBER !!!");
           }
           System.out.println("Enter the marks for this "+index+"subject");
           int m=sc.nextInt();
+          if(m<0 || m>100){
+          throw new InvalidMarksException("Invalid marks ,Marks should be from 0 to 100");
+          }
           sc.nextLine();
           temp.set(index-1,m);
           found.setMarks(temp);
@@ -196,6 +250,9 @@ public class miniproject1{
           List<Integer>temp=new ArrayList<>(found.getMarks());
           System.out.println("enter the  subject marks you want to add");
           int m=sc.nextInt();
+          if(m<0 || m>100){
+          throw new InvalidMarksException("Invalid marks ,Marks should be from 0 to 100");
+          }
           sc.nextLine();
           temp.add(m);
           found.setMarks(temp);
@@ -210,20 +267,20 @@ public class miniproject1{
         }
       }
       else{
-        System.out.println("student not found");
+         throw new StudentNotFoundException("The requested roll doest not exist in the database");
       }
     }
     // now method for deletion 
-        public  static void deleteStudent(){
+        public  static void deleteStudent() throws StudentNotFoundException{
         System.out.println("Enter the RollNo of  the student you want to delete");
         int rollNo=sc.nextInt();
-        sc.nextLine();
+        sc.nextLine(); 
           Student removed= students.remove(rollNo);
           if(removed!=null){
            System.out.println("Student with "+rollNo +"removed successfully");
           } 
           else{
-          System.out.println("No student found with roll number"+rollNo);
+          throw new StudentNotFoundException("The requested roll no which you want to delete doesnot exist in the data base");
           }
         }
         // partial search 
@@ -232,7 +289,7 @@ public class miniproject1{
           String text=sc.nextLine();
           List<Student>temp=new ArrayList<>();
           boolean flag=false;
-          for(Student s:students){
+          for(Student s:students.values()){
            if(s.getName().toLowerCase().contains(text.toLowerCase())){
              flag=true;
              temp.add(s);
@@ -244,7 +301,7 @@ public class miniproject1{
           else{
             System.out.println("maching students are");
             for(int i=0;i<temp.size();i++){
-             System.out.println((i+1)+"."+temp.get(i).getName());
+             System.out.println("roll No :"+temp.get(i).getRollno()+"Name : "+temp.get(i).getName());
             }
             System.out.println("Do you want details of the any maching student if want press the student name number ");
             int choice=sc.nextInt();
