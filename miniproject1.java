@@ -60,7 +60,7 @@ class Student{
   
 public class miniproject1{
 
-       static ArrayList<Student>students=new ArrayList<>();
+       static  Map<Integer,Student>students=new Hashmap<>();
         static  Scanner sc= new Scanner(System.in);
 
    public static void main(String args[]){
@@ -112,7 +112,7 @@ public class miniproject1{
           }
           sc.nextLine();
           Student newStudent=new Student(name,marks);
-          students.add(newStudent);
+          students.put(newStudent.getRollno(),newStudent);
           System.out.println("Student added succsessfully");
       }
       // View all students Details
@@ -123,7 +123,7 @@ public class miniproject1{
           }
 
        System.out.println("Details of all students are :");
-       for(Student s:students){
+       for(Student s:students.values()){ // we are using the .values() cux we want the objets in the map 
         System.out.println("NAME :"+s.getName());
         System.out.println("ROLLNO :" +s.getRollno());
         System.out.println("MARKS :"+ s.getMarks());
@@ -135,15 +135,10 @@ public class miniproject1{
       }
     // update student 
     public static  void updateStudent(){
-     System.out.println("enter the name of the student  to update");
-      String toFound=sc.nextLine();
-         Student found=null;
-      for(Student s:students ){
-       if(s.getName().equalsIgnoreCase(toFound)){
-           found=s;
-           break;
-       }
-      }
+     System.out.println("enter the Roll number of the student  to update");
+       int rollNo=sc.nextInt();
+       sc.nextLine();
+      Student found=students.get(rollNo);
       if(found!=null){
         System.out.println("Student Found "+found.getName());
         int choice=0;
@@ -220,24 +215,16 @@ public class miniproject1{
     }
     // now method for deletion 
         public  static void deleteStudent(){
-        System.out.println("Enter the name of  the student you want to delete");
-        String name=sc.nextLine().trim();
-       
-        Student found=null;
-        for(Student s: students){
-         if(s.getName().equalsIgnoreCase(name)){
-         found =s;
-         break;
-         }
-        }
-        if(found!=null){
-        System.out.println("Student found "+name);
-        students.remove(found);
-        System.out.println("student removed or deleted successfully ");
-        }
-        else{
-          System.out.println("student doesnot exist in the database ");
-        }
+        System.out.println("Enter the RollNo of  the student you want to delete");
+        int rollNo=sc.nextInt();
+        sc.nextLine();
+          Student removed= students.remove(rollNo);
+          if(removed!=null){
+           System.out.println("Student with "+rollNo +"removed successfully");
+          } 
+          else{
+          System.out.println("No student found with roll number"+rollNo);
+          }
         }
         // partial search 
         public   static void searchStudentByPartialName(){
