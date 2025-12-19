@@ -4,11 +4,13 @@ import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
-class Student{
+import java.io.*;
+class Student implements Serializable{// for FileInputOutput 
+  private static final long serialVersionUID = 1L;// also for the file input out
    private  String name;
    private int rollno;
     private  List<Integer>marks;
-    private static int  rollNoCounter=1000;
+     static int  rollNoCounter=1000;
     Student(String name,List<Integer>marks ){
        this.rollno= ++rollNoCounter;
      this.name=name;
@@ -97,8 +99,48 @@ public class miniproject1{
 
        static  Map<Integer,Student>students=new HashMap<>();
         static  Scanner sc= new Scanner(System.in);
+        
+        public static void saveToFile(){//for saving the data into the file
+          try{
+          FileOutputStream  fos= new FileOutputStream("students.dat");
+          ObjectOutputStream oos= new ObjectOutputStream(fos);
+          oos.writeObject(students);//we are saving whole map
+          oos.close();
+          fos.close();
+          System.out.println("Student data saved successfully");
+          }
+          catch(IOException e){
+           System.out.println("error while saving the data "+e.getMessage());
+          }
+        }
+
+        @SuppressWarnings("unchecked")
+        public static void loadFromFile(){
+          try{
+          FileInputStream fis=new FileInputStream("students.dat");
+          ObjectInputStream ois= new ObjectInputStream(fis);
+          students= (Map<Integer,Student>) ois.readObject();
+          ois.close();
+          fis.close();
+          int maxRollNo=1000;
+        for(Integer roll:students.keySet()){
+          if(roll>maxRollNo){
+           maxRollNo=roll;
+          }
+        }
+        Student.rollNoCounter=maxRollNo;
+          System.out.println("Students data load successfully");
+          }
+          catch(FileNotFoundException e){
+          System.out.println("No previous data found . Start fresh");
+          }
+          catch(IOException | ClassNotFoundException e){
+          System.out.println("Error while loading the data "+e.getMessage());
+          }
+        }
 
    public static void main(String args[]){
+      loadFromFile();
       System.out.println("you are in main menu");
       while(true){
        System.out.println("Student Management System");
@@ -151,6 +193,7 @@ public class miniproject1{
         sortStudents();
        }
        else if(choice==7){
+        saveToFile();
         System.out.println("program terminates");
         break;
        }
@@ -320,9 +363,9 @@ public class miniproject1{
           else{
             System.out.println("maching students are");
             for(int i=0;i<temp.size();i++){
-             System.out.println("roll No :"+temp.get(i).getRollno()+"Name : "+temp.get(i).getName());
+             System.out.println((i+1) + "name :" +temp.get(i).getName());
             }
-            System.out.println("Do you want details of the any maching student if want press the student roll number 7 number ");
+            System.out.println("Do you want details of the any maching student if want press the student  number ");
             int choice=sc.nextInt();
             sc.nextLine();
             if(choice<1 || choice>temp.size()){
