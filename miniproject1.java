@@ -58,6 +58,21 @@ class Student{
      }
       return (double)sum/marks.size();
     }
+    @Override
+    public String toString(){
+    return "Roll No :" + rollno+", Name :" +name +", Marks :"+ getMarks()+", Average:" +getAverage()+",Grade:" +getGrade();
+     }
+     public int getGradeRank(){
+      switch(getGrade()){
+       case "A+": return 6;
+       case "A"  : return 5;
+       case "B+" : return 4;
+       case "B"  : return 3;
+       case "C"  : return 2;
+       case "F"  : return 1;
+       default :  return 0;
+      }
+     }
 }
  class StudentNotFoundException extends Exception{
            StudentNotFoundException(String message){
@@ -92,7 +107,8 @@ public class miniproject1{
      System.out.println("3. Update student");
       System.out.println("4. Delete student");
       System.out.println("5. Search student by name");
-      System.out.println("6. Exit");
+      System.out.println("6. Sort Students ");
+      System.out.println( "7. exit ");
       int choice=sc.nextInt();
       sc.nextLine();
        if(choice==1){
@@ -132,6 +148,9 @@ public class miniproject1{
           searchStudentByPartialName();
        }
        else if(choice==6){
+        sortStudents();
+       }
+       else if(choice==7){
         System.out.println("program terminates");
         break;
        }
@@ -303,7 +322,7 @@ public class miniproject1{
             for(int i=0;i<temp.size();i++){
              System.out.println("roll No :"+temp.get(i).getRollno()+"Name : "+temp.get(i).getName());
             }
-            System.out.println("Do you want details of the any maching student if want press the student name number ");
+            System.out.println("Do you want details of the any maching student if want press the student roll number 7 number ");
             int choice=sc.nextInt();
             sc.nextLine();
             if(choice<1 || choice>temp.size()){
@@ -319,5 +338,42 @@ public class miniproject1{
              System.out.println("------------------------------");
           }
           }
+          // sort students
+           public static void sortStudents(){
+            if(students.isEmpty()){
+             System.out.println("No students available to sort");
+             return;
+            }
+           System.out.println("How You want to sort the students");
+           System.out.println("Enter 1 to Sort student by name");
+           System.out.println("Enter 2 to Sort student by Roll No ");
+           System.out.println("Entet 3 to sort students by there  average marks");
+           System.out.println("Enter 4 to sort students by there  Grade ");
+           System.out.println(" Enter 5 to exit");
+           while(true){
+            System.out.println("Enter the choice you want to choose");
+           int choice=sc.nextInt();
+           sc.nextLine();
+           if(choice==1){
+           students.values().stream().sorted((a,b)->a.getName().compareTo(b.getName())).forEach(System.out::println);
+           }
+           else if(choice==2){
+            students.values().stream().sorted((a,b)->a.getRollno()-b.getRollno()).forEach(System.out::println);
+           }
+           else if(choice==3){
+           students.values().stream().sorted((a,b)->Double.compare(b.getAverage(),a.getAverage())).forEach(System.out::println);
+           }
+           else if(choice==4){
+           students.values().stream().sorted((a,b)->Integer.compare(b.getGradeRank(),a.getGradeRank())).forEach(System.out::println);
+           }
+           else if(choice==5){
+           System.out.println("sorted done now exit ");
+           break;
+           }
+           else{
+            System.out.println("Invalid choice plx choose the valid choice ");
+           }
+           }
+           }
         }
 
