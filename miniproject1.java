@@ -4,13 +4,20 @@ import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
-import java.io.*;
-class Student implements Serializable{// for FileInputOutput 
-  private static final long serialVersionUID = 1L;// also for the file input out
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+  import java.io.File;
+import java.io.IOException;// this for the jackson thing 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+class Student {
    private  String name;
    private int rollno;
     private  List<Integer>marks;
      static int  rollNoCounter=1000;
+     Student() {}
     Student(String name,List<Integer>marks ){
        this.rollno= ++rollNoCounter;
      this.name=name;
@@ -32,6 +39,7 @@ class Student implements Serializable{// for FileInputOutput
     public int getRollno(){
      return rollno;
     }
+    @JsonIgnore
     public String getGrade(){
      double average=getAverage();
      if(average>=90){
@@ -53,6 +61,7 @@ class Student implements Serializable{// for FileInputOutput
       return "F";
      }
     }
+    @JsonIgnore
     public double getAverage(){
         int sum=0;
      for(int m:marks){
@@ -100,47 +109,42 @@ public class miniproject1{
        static  Map<Integer,Student>students=new HashMap<>();
         static  Scanner sc= new Scanner(System.in);
         
-        public static void saveToFile(){//for saving the data into the file
+        public static void saveToJson(){
           try{
-          FileOutputStream  fos= new FileOutputStream("students.dat");
-          ObjectOutputStream oos= new ObjectOutputStream(fos);
-          oos.writeObject(students);//we are saving whole map
-          oos.close();
-          fos.close();
-          System.out.println("Student data saved successfully");
+          ObjectMapper mapper= new ObjectMapper();
+          mapper.writeValue(new File("students.json"),students);
+          System.out.println("Data saved to JSON file");
           }
           catch(IOException e){
-           System.out.println("error while saving the data "+e.getMessage());
+            System.out.println("error saving json "+e.getMessage());
           }
         }
 
-        @SuppressWarnings("unchecked")
-        public static void loadFromFile(){
-          try{
-          FileInputStream fis=new FileInputStream("students.dat");
-          ObjectInputStream ois= new ObjectInputStream(fis);
-          students= (Map<Integer,Student>) ois.readObject();
-          ois.close();
-          fis.close();
-          int maxRollNo=1000;
-        for(Integer roll:students.keySet()){
-          if(roll>maxRollNo){
-           maxRollNo=roll;
+       public static void loadFromJson(){
+        try{
+         ObjectMapper mapper= new ObjectMapper();
+         File file= new File("students.json");
+         if(!file.exists()){
+          System.out.println("No previous json data found , Starting fresh ");
+          return;
+         }
+         students=mapper.readValue(file,new TypeReference<Map<Integer,Student>>(){});
+         int maxRollno=1000;
+         for(Integer rollno:students.keySet()){
+          if(rollno>maxRollno){
+            maxRollno=rollno;
           }
+         }
+         Student.rollNoCounter=maxRollno;
+         System.out.println("Data loaded from JSON file");
         }
-        Student.rollNoCounter=maxRollNo;
-          System.out.println("Students data load successfully");
-          }
-          catch(FileNotFoundException e){
-          System.out.println("No previous data found . Start fresh");
-          }
-          catch(IOException | ClassNotFoundException e){
-          System.out.println("Error while loading the data "+e.getMessage());
-          }
+        catch(IOException e){
+        System.out.println("Error loading JSON "+e.getMessage());
         }
+       }
 
    public static void main(String args[]){
-      loadFromFile();
+      loadFromJson();
       System.out.println("you are in main menu");
       while(true){
        System.out.println("Student Management System");
@@ -193,7 +197,7 @@ public class miniproject1{
         sortStudents();
        }
        else if(choice==7){
-        saveToFile();
+        saveToJson();
         System.out.println("program terminates");
         break;
        }
