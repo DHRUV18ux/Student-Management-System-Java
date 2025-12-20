@@ -41,6 +41,13 @@ Student-Management-System-Java/
 └── .gitignore               # Git ignored files 
 students.json  # Auto-generated file to store student records
 
+ ## ▶️ How to Run the Project
+
+git clone https://github.com/DRHUV18ux/Student-Management-System-Java.git
+cd Student-Management-System-Java
+javac -cp ".;lib/*" miniproject1.java
+ java -cp ".;lib/*" miniproject1
+
 
 
 
